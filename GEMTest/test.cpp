@@ -1,10 +1,18 @@
 #include "pch.h"
 
-#include <Shader.h>
 #include "GEM.h"
 
+
+class File {
+public:
+	File(int a) : a(a) {}
+
+	int a;
+};
+
 TEST(TestCaseName, TestName) {
-	Shader<Blending> shader;
+
+	gem::Shader<gem::Blending> shader;
 	shader.addBlending_Layout(0, "aPos");
 	shader.addBlending_Layout(1, "aNormal");
 	shader.addBlending_Layout(2, "aTexCoords");

@@ -14,58 +14,62 @@
 
 #include "Configuration.h"
 
-class FileManager {
-public:
-	FileManager() :
-		directory(config.getSourceDirectory())
-	{
-		namespace sf = std::filesystem;
+namespace _gem {
 
-		//Check if path exists, otherwise create path
-		guaranteePath(directory.string());
+	class FileManager {
+	public:
+		FileManager() :
+			directory(config.getSourceDirectory())
+		{
+			namespace sf = std::filesystem;
 
-		Logger::log(Logger::GEM, "Loading source files at ", directory.string());
+			//Check if path exists, otherwise create path
+			guaranteePath(directory.string());
 
-		
-		//Add all files to map
-		auto pred = [this](const sf::path& path) {
-			std::string ext = path.extension().string();
-			std::string stem = path.stem().string();
-			std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
-			std::transform(stem.begin(), stem.end(), stem.begin(), ::tolower);
-			if (ext == ".gem") {
-				files.emplace(getRelativePath(path, directory), File(path.string()));
+			Logger::log(Logger::GEM, "Loading source files at ", directory.string());
+
+
+			//Add all files to map
+			auto pred = [this](const sf::path& path) {
+				std::string ext = path.extension().string();
+				std::string stem = path.stem().string();
+				std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+				std::transform(stem.begin(), stem.end(), stem.begin(), ::tolower);
+				if (ext == ".gem") {
+					files.emplace(getRelativePath(path, directory), File(path.string()));
+				}
+			};
+
+			using SFrdit = sf::recursive_directory_iterator;
+			std::for_each(SFrdit(directory), SFrdit{}, pred);
+
+			if (files.size()) {
+				Logger::log(Logger::GEM, "No .gem files found under: " + directory.string() + "\n");
 			}
-		};
 
-		using SFrdit = sf::recursive_directory_iterator;
-		std::for_each(SFrdit(directory), SFrdit{}, pred);
 
-		if (files.size()) {
-			Logger::log(Logger::GEM, "No .gem files found under: " + directory.string() + "\n");
+
 		}
 
+		File& getFileByName(std::string name) {
+			auto found = files.find(name);
+			if (found == files.end()) {
+				Logger::log(Logger::GEM, "File: " + name + " was not found.");
+			}
 
-		
-	}
-
-	File& getFileByName(std::string name) {
-		auto found = files.find(name);
-		if (found == files.end()) {
-			Logger::log(Logger::GEM, "File: " + name + " was not found.");
+			return found->second;
 		}
 
-		return found->second;
-	}
+		inline static Configuration config;
 
-	inline static Configuration config;
+	private:
 
-private:
+		std::filesystem::path directory;
+		std::ofstream log;
+		std::unordered_map<std::string, File> files;
+		std::string entryFile;
 
-	std::filesystem::path directory;
-	std::ofstream log;
-	std::unordered_map<std::string, File> files;
-	std::string entryFile;
 
-	
-};
+	};
+
+}

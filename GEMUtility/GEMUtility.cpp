@@ -7,9 +7,9 @@
 #include <Configuration.h>
 #include <Types.h>
 
+using namespace _gem;
 
 FileManager manager;
-
 
 std::string parse(const File& file, std::string useCase, std::string prefix) {
 
@@ -18,7 +18,7 @@ std::string parse(const File& file, std::string useCase, std::string prefix) {
 
 	//Invalid parameter check.
 	bool validParameter = false;
-	for (std::string s : gem::includeSpecifiers) {
+	for (std::string s : includeSpecifiers) {
 		if (useCase == s) {
 			validParameter = true;
 		}
@@ -69,7 +69,8 @@ std::string parse(const File& file, std::string useCase, std::string prefix) {
 int main(int argc, char* argv[]) {
 	std::vector<std::string> entryFiles = manager.config.getEntryFiles();
 
-	std::string generatedCode = "#include <string>\n#include <FileManager.h>\n";
+	std::string generatedCode = "#include <Shader.h>\n";
+	generatedCode += "namespace gem {\n";
 
 
 	for (size_t i = 0; i < entryFiles.size(); i++) {
@@ -79,11 +80,13 @@ int main(int argc, char* argv[]) {
 		Logger::log(Logger::GEMLinker, "Initializing parsing of:", file.name, " as entry point\n");
 
 		generatedCode += "struct " + file.name + " {public:\n";
-		generatedCode += "inline static FileManager manager;\n";
-		generatedCode += "static File& getEntry() { return manager.getFileByName(\"" + entryFiles[i] + "\");}\n";
+		generatedCode += "inline static _gem::FileManager manager;\n";
+		generatedCode += "static _gem::File& getEntry() { return manager.getFileByName(\"" + entryFiles[i] + "\");}\n";
 		generatedCode += parse(file, "set", file.name);
 		generatedCode += "};\n";
 	}
+
+	generatedCode += "};";
 
 	std::ofstream codeFile(manager.config.getLinkerDirectory() + "/GEM.h");
 	codeFile << generatedCode;
