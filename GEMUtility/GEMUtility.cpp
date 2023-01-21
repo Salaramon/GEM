@@ -80,9 +80,10 @@ int main(int argc, char* argv[]) {
 		Logger::log(Logger::GEMLinker, "Initializing parsing of:", file.name, " as entry point\n");
 
 		generatedCode += "struct " + file.name + " {public:\n";
+		generatedCode += parse(file, "set", file.name);
+		generatedCode += "protected:\n";
 		generatedCode += "inline static _gem::FileManager manager;\n";
 		generatedCode += "static _gem::File& getEntry() { return manager.getFileByName(\"" + entryFiles[i] + "\");}\n";
-		generatedCode += parse(file, "set", file.name);
 		generatedCode += "};\n";
 	}
 

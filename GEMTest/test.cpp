@@ -12,6 +12,7 @@ public:
 
 TEST(TestCaseName, TestName) {
 
+
 	gem::Shader<gem::Blending> shader;
 	shader.addBlending_Layout(0, "aPos");
 	shader.addBlending_Layout(1, "aNormal");
@@ -24,4 +25,11 @@ TEST(TestCaseName, TestName) {
 
 	shader.setBlending();
 	shader.compile();
+
+
+	gem::Shader<gem::TestEntry> shader2;
+	shader2.setTestEntry("anything");
+	shader2.setTestEntry_Layout(5, "random");
+	shader2.setTestEntry_Test();
+	shader2.compile();
 }
