@@ -67,7 +67,10 @@ std::string parse(const File& file, std::string useCase, std::string prefix) {
 
 
 int main(int argc, char* argv[]) {
-	std::vector<std::string> entryFiles = manager.config.getEntryFiles();
+	std::vector<std::string> entryFiles = manager.getEntryFiles();
+	if (entryFiles.size() == 0) {
+		Logger::log(Logger::GEMLinker, "No entry files found.\n");
+	}
 
 	std::string generatedCode = "#include <Shader.h>\n";
 	generatedCode += "namespace gem {\n";
@@ -77,7 +80,7 @@ int main(int argc, char* argv[]) {
 		File file = manager.getFileByName(entryFiles[i]);
 
 		//Logging entry points
-		Logger::log(Logger::GEMLinker, "Initializing parsing of:", file.name, " as entry point\n");
+		Logger::log(Logger::GEMLinker, "Initializing parsing of: ", file.name, " as entry point\n");
 
 		generatedCode += "struct " + file.name + " {public:\n";
 		generatedCode += parse(file, "set", file.name);

@@ -3,16 +3,10 @@
 #include "GEM.h"
 
 
-class File {
-public:
-	File(int a) : a(a) {}
-
-	int a;
-};
 
 TEST(TestCaseName, TestName) {
 
-
+	
 	gem::Shader<gem::Blending> shader;
 	shader.addBlending_Layout(0, "aPos");
 	shader.addBlending_Layout(1, "aNormal");
@@ -32,4 +26,5 @@ TEST(TestCaseName, TestName) {
 	shader2.setTestEntry_Layout(5, "random");
 	shader2.setTestEntry_Test();
 	shader2.compile();
+	
 }

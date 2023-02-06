@@ -19,14 +19,15 @@ namespace _gem {
 	class FileManager {
 	public:
 		FileManager() :
-			directory(config.getSourceDirectory())
+			source_directory(config.getSourceDirectory()),
+			entry_directory(config.getEntryDirectory())
 		{
 			namespace sf = std::filesystem;
 
 			//Check if path exists, otherwise create path
-			guaranteePath(directory.string());
+			guaranteePath(source_directory.string());
 
-			Logger::log(Logger::GEM, "Loading source files at ", directory.string());
+			Logger::log(Logger::GEM, "Loading source files at ", source_directory.string());
 
 
 			//Add all files to map
@@ -36,19 +37,31 @@ namespace _gem {
 				std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
 				std::transform(stem.begin(), stem.end(), stem.begin(), ::tolower);
 				if (ext == ".gem") {
-					files.emplace(getRelativePath(path, directory), File(path.string()));
+					File file(path.string());
+					std::string relativePath = getRelativePath(path, source_directory);
+					files.emplace(relativePath, file);
+
+					sf::path noFilePath = path;
+					noFilePath.remove_filename();
+					if (noFilePath == entry_directory) {
+						entry_files.push_back(file.path);
+					}
 				}
 			};
 
 			using SFrdit = sf::recursive_directory_iterator;
-			std::for_each(SFrdit(directory), SFrdit{}, pred);
+			std::for_each(SFrdit(source_directory), SFrdit{}, pred);
 
 			if (files.size()) {
-				Logger::log(Logger::GEM, "No .gem files found under: " + directory.string() + "\n");
+				Logger::log(Logger::GEM, "No .gem files found under: " + source_directory.string() + "\n");
 			}
 
 
 
+		}
+
+		std::vector<std::string> getEntryFiles() {
+			return entry_files;
 		}
 
 		File& getFileByName(std::string name) {
@@ -64,12 +77,11 @@ namespace _gem {
 
 	private:
 
-		std::filesystem::path directory;
+		std::filesystem::path entry_directory;
+		std::filesystem::path source_directory;
 		std::ofstream log;
 		std::unordered_map<std::string, File> files;
-		std::string entryFile;
-
-
+		std::vector<std::string> entry_files;
 	};
 
 }

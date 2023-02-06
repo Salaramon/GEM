@@ -23,7 +23,7 @@ namespace _gem {
 				cfgFile
 					<< "source_directory = \"src/\"\n"
 					<< "build_directory = \"build/\"\n"
-					<< "entry_files = []";
+					<< "entry_directory = \"src/\"\n";
 				cfgFile.close();
 			}
 
@@ -43,6 +43,9 @@ namespace _gem {
 			if (table["entry_files"].is_value()) {
 				Logger::log(Logger::GEM, "Could not find entry_files, or it was not assigned in the GEM.cfg\n");
 			}
+			if (table["entry_directory"].is_value()) {
+				Logger::log(Logger::GEM, "Could not find entry_directory, or it was not assigned in the GEM.cfg\n");
+			}
 
 
 		}
@@ -59,6 +62,11 @@ namespace _gem {
 			return table["linker_directory"].value<std::string>().value();
 		}
 
+		static std::string getEntryDirectory() {
+			return table["entry_directory"].value<std::string>().value();
+		}
+
+		/*
 		static std::vector<std::string> getEntryFiles() {
 			std::vector<std::string> vec;
 			toml::array& arr = *table.get_as<toml::array>("entry_files");
@@ -68,6 +76,7 @@ namespace _gem {
 
 			return vec;
 		}
+		*/
 
 		inline static toml::table table;
 	};

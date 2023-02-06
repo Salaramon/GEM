@@ -31,6 +31,7 @@ namespace _gem {
 			std::ostringstream ss;
 			ss << file.rdbuf();
 			content = ss.str();
+			file.close();
 
 			Logger::log(Logger::GEM, "Loading file: ", path.string());
 

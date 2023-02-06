@@ -29,7 +29,10 @@ namespace _gem {
 
 		static void post(std::string log) {
 			std::ofstream logFile(log + ".log");
-			logFile << logMap.find(log)->second;
+			auto found = logMap.find(log);
+			if (found != logMap.end()) {
+				logFile << found->second;
+			}
 			logFile.close();
 		}
 
