@@ -35,6 +35,9 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>C:\Users\Salaramon\source\repos\GEM\GEM;C:\Users\Salaramon\source\repos\GEM\tomlplusplus-3.2.0\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>C:\Users\Salaramon\source\repos\GEM\GEM;C:\Users\Salaramon\source\repos\GEM\tomlplusplus-3.2.0\include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
   <ItemGroup>
     <ClInclude Include="GEM.h" />
     <ClInclude Include="pch.h" />

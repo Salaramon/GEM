@@ -78,10 +78,6 @@ int main(int argc, char* argv[]) {
 	std::string generatedCode = "pragma once\n";
 	generatedCode = "#include <Shader.h>\n";
 
-	generatedCode += "namespace _gem {\n";
-	
-	generatedCode += "};\n";
-
 
 	generatedCode += "namespace gem {\n";
 
