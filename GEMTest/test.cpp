@@ -16,15 +16,13 @@ TEST(TestCaseName, TestName) {
 	shader.addBlending_Layout(5, "aMaterialNumber");
 
 	shader.setBlending_VS_OUT("vs_out");
-
-	shader.setBlending();
+;
 	shader.compile();
 
 
 	gem::Shader<gem::TestEntry> shader2;
 	shader2.setTestEntry("anything");
 	shader2.setTestEntry_Layout(5, "random");
-	shader2.setTestEntry_Test();
 	shader2.compile();
 	
 }

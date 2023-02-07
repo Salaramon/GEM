@@ -6,6 +6,10 @@
 #include "FileManager.h"
 #include "Utility.h"
 
+//Need to fix GEM.h so that build and entry dir belongs to each struct
+//Need to fix generation of macroless includes are just automatically processed when compiled and is not accessible through GEM.h
+
+
 namespace gem {
 
 	template<class T>
@@ -17,17 +21,14 @@ namespace gem {
 		void compile() {
 			std::string glslCode = parseTree(T::getEntry());
 
-			_gem::guaranteePath(T::manager.config.getBuildDirectory());
-			std::ofstream codeFile(T::manager.config.getBuildDirectory() + "/" + T::getEntry().name + ".glsl");
+			_gem::guaranteePath(T::build);
+			std::ofstream codeFile(std::string(T::build) + "/" + T::getEntry().name + ".glsl");
 			codeFile << glslCode;
 			codeFile.close();
 		}
 
 	private:
 		std::string parseTree(_gem::File& file) {
-
-			std::regex includeRegex("##\\[([a-zA-Z][a-zA-Z0-9_.-]+)\\]");
-			std::smatch matches;
 
 			std::string compiledCode;
 

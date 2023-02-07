@@ -11,13 +11,14 @@
 #include "Logger.h"
 #include "Utility.h"
 #include "Signature.h"
+#include "Configuration.h"
 
 namespace _gem {
 
 	class File {
 	public:
-		File(std::filesystem::path path, std::string source) :
-			path(getRelativePath(path, source)),
+		File(std::filesystem::path path) :
+			path(getRelativePath(path, Configuration::getSourceDirectory())),
 			name(path.stem().string()),
 			extension(path.extension().string())
 		{

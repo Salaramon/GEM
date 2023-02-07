@@ -12,13 +12,15 @@
 #include "File.h"
 #include "Logger.h"
 
+#include "Configuration.h"
+
 namespace _gem {
 
 	class FileManager {
 	public:
-		FileManager(std::string source, std::string entry) :
-			source_directory(source),
-			entry_directory(entry)
+		FileManager() :
+			source_directory(Configuration::getSourceDirectory()),
+			entry_directory(Configuration::getEntryDirectory())
 		{
 			namespace sf = std::filesystem;
 
@@ -29,13 +31,13 @@ namespace _gem {
 
 
 			//Add all files to map
-			auto pred = [source, this](const sf::path& path) {
+			auto pred = [this](const sf::path& path) {
 				std::string ext = path.extension().string();
 				std::string stem = path.stem().string();
 				std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
 				std::transform(stem.begin(), stem.end(), stem.begin(), ::tolower);
 				if (ext == ".gem") {
-					File file(path.string(), source);
+					File file(path.string());
 					std::string relativePath = getRelativePath(path, source_directory);
 					files.emplace(relativePath, file);
 
@@ -71,6 +73,7 @@ namespace _gem {
 			return found->second;
 		}
 
+		inline static Configuration config;
 
 	private:
 

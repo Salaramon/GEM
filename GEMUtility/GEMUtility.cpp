@@ -2,10 +2,8 @@
 #include <vector>
 #include <string>
 
-#include <FileManager.h>
-#include <File.h>
-#include <Configuration.h>
-#include <Types.h>
+#include "FileManager.h"
+#include "Types.h"
 
 using namespace _gem;
 
@@ -13,46 +11,51 @@ FileManager manager;
 
 std::string parse(const File& file, std::string useCase, std::string prefix) {
 
-	//Logging parse action
-	Logger::log(Logger::GEMLinker, "parsing file: ", file.name, " as part in ", prefix, "\n");
+	std::string generatedCode;
 
-	//Invalid parameter check.
-	bool validParameter = false;
-	for (std::string s : includeSpecifiers) {
-		if (useCase == s) {
-			validParameter = true;
+	if (file.processedContents.size() == 0) {
+
+		//Logging parse action
+		Logger::log(Logger::GEMLinker, "parsing file: ", file.name, " as part in ", prefix, "\n");
+
+		//Invalid parameter check.
+		bool validParameter = false;
+		for (std::string s : includeSpecifiers) {
+			if (useCase == s) {
+				validParameter = true;
+			}
 		}
-	}
-	if (!validParameter) {
-		Logger::log(Logger::GEMLinker, useCase, " is an unrecognized include specifier...\n");
-	}
+		if (!validParameter) {
+			Logger::log(Logger::GEMLinker, useCase, " is an unrecognized include specifier...\n");
+		}
 
 
-	//Generated function start
-	std::string generatedCode = "static void " + useCase + prefix + "(";
+		//Generated function start
+		generatedCode = "static void " + useCase + prefix + "(";
 
-	
-	//Generating function parameters from macros
-	for (size_t i = 0; i < file.macros.size(); i++) {
-		generatedCode += file.macros[i].type + " " + file.macros[i].parameter + ",";
-	}
-	if (file.macros.size() != 0) {
-		generatedCode.pop_back();
-	}
 
-	//Generating function parameters as arguments to be passed
-	std::string parameters;
-	for (size_t i = 0; i < file.macros.size(); i++) {
-		parameters += file.macros[i].parameter + ",";
-	}
-	if (parameters.size()) {
-		parameters.pop_back();
-	}
+		//Generating function parameters from macros
+		for (size_t i = 0; i < file.macros.size(); i++) {
+			generatedCode += file.macros[i].type + " " + file.macros[i].parameter + ",";
+		}
+		if (file.macros.size() != 0) {
+			generatedCode.pop_back();
+		}
 
-	
-	//Finalizing function
-	generatedCode += ") { if(manager.getFileByName(\"" + file.path + "\").processFile(" + parameters + ") && \"set\" == \"" + useCase + "\" ){ throw; } ;}\n";
+		//Generating function parameters as arguments to be passed
+		std::string parameters;
+		for (size_t i = 0; i < file.macros.size(); i++) {
+			parameters += file.macros[i].parameter + ",";
+		}
+		if (parameters.size()) {
+			parameters.pop_back();
+		}
 
+
+		//Finalizing function
+		generatedCode += ") { if(manager.getFileByName(\"" + file.path + "\").processFile(" + parameters + ") && \"set\" == \"" + useCase + "\" ){ throw; } ;}\n";
+
+	}
 
 	//Continuing include iteration and parsing.
 	for (size_t i = 0; i < file.includes.size(); i++) {
@@ -72,11 +75,26 @@ int main(int argc, char* argv[]) {
 		Logger::log(Logger::GEMLinker, "No entry files found.\n");
 	}
 
-	std::string generatedCode = "#include <Shader.h>\n";
+	std::string generatedCode = "pragma once\n";
+	generatedCode = "#include <Shader.h>\n";
+
+	generatedCode += "namespace _gem {\n";
+	
+	generatedCode += "};\n";
+
+
 	generatedCode += "namespace gem {\n";
 
 
 	for (size_t i = 0; i < entryFiles.size(); i++) {
+		namespace sf = std::filesystem;
+		std::string absSource = sf::absolute(sf::path(Configuration::getSourceDirectory())).string();
+		std::replace(absSource.begin(), absSource.end(), (char)sf::path::preferred_separator,  '/');
+		std::string absEntry = sf::absolute(sf::path(Configuration::getEntryDirectory())).string();
+		std::replace(absEntry.begin(), absEntry.end(), (char)sf::path::preferred_separator, '/');
+		std::string absBuild = sf::absolute(sf::path(Configuration::getBuildDirectory())).string();
+		std::replace(absBuild.begin(), absBuild.end(), (char)sf::path::preferred_separator, '/');
+
 		File file = manager.getFileByName(entryFiles[i]);
 
 		//Logging entry points
@@ -85,8 +103,11 @@ int main(int argc, char* argv[]) {
 		generatedCode += "struct " + file.name + " {public:\n";
 		generatedCode += parse(file, "set", file.name);
 		generatedCode += "protected:\n";
-		generatedCode += "inline static _gem::FileManager manager;\n";
 		generatedCode += "static _gem::File& getEntry() { return manager.getFileByName(\"" + entryFiles[i] + "\");}\n";
+		generatedCode += "inline static constexpr const char source[] = \"" + absSource + "\";\n";
+		generatedCode += "inline static constexpr const char entry[] = \"" + absEntry + "\";\n";
+		generatedCode += "inline static constexpr const char build[] = \"" + absBuild + "\";\n";
+		generatedCode += "inline static _gem::FileManager manager{source, entry};\n";
 		generatedCode += "};\n";
 	}
 
